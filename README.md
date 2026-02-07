@@ -14,7 +14,7 @@ The system uses a custom-designed voltage divider circuit to capture the resista
 [Differential Voltage Divider Circuit](differential_voltage_divider_circuit.svg)
 
 ## Software & Analysis
-The firmware is written in C using STM32CubeIDE. Real-time data is transmitted via UART (115200 baud) to a custom MATLAB interface for live resistivity ($\rho$) and resistance ($R$) analysis.
+The firmware is written in C using STM32CubeIDE. Real-time data is transmitted via UART (115200 baud) to a custom MATLAB interface for live resistivity (rho) and resistance (R) analysis.
 
 - **Embedded:** HAL Drivers, DMA, Interrupts.
 - **Signal Processing:** Moving Average Filter.
