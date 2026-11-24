@@ -3,8 +3,8 @@
 Low-cost, 3D-printable bend sensors made from conductive TPU (Recreus Filaflex), with an STM32 measurement system, a bend/hysteresis test rig and stretching tests. The goal is to check if this material can replace expensive commercial bend sensors in a data glove.
 
 > Final project, Dokuz Eylül University, Electrical & Electronics Engineering (June 2026)
+>
 > Author: Zehra Miray Gülseren · Advisor: Assoc. Prof. Dr. Ahmet Özkurt
-
 ## Key Results
 
 - Resistance **decreases** when the sensor is bent or stretched (negative piezoresistive effect).
