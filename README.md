@@ -1,69 +1,68 @@
 # STM32-Based Characterization of FDM-Printed Conductive TPU Bend Sensors
 
-Low-cost, 3D-printable bend sensors made from carbon-filled conductive TPU (Recreus Filaflex Conductive), with an STM32 measurement system and test rigs for bending and stretching.
+Low-cost, 3D-printable bend sensors made from conductive TPU (Recreus Filaflex), with an STM32 measurement system, a bend/hysteresis test rig and stretching tests. The goal is to check if this material can replace expensive commercial bend sensors in a data glove.
 
-> Final project, Dokuz Eylül University, Electrical & Electronics Engineering (June 2026).
-> Advisor: Assoc. Prof. Dr. Ahmet Özkurt
+> Final project, Dokuz Eylül University, Electrical & Electronics Engineering (June 2026)
+> Author: Zehra Miray Gülseren · Advisor: Assoc. Prof. Dr. Ahmet Özkurt
 
-## Aim
+## Key Results
 
-Commercial bend sensors are expensive and cannot be customized. This project measures how well conductive TPU can replace them in a data glove. It studies the **forward problem** (angle → resistance). The inverse problem (resistance → angle) is future work.
+- Resistance **decreases** when the sensor is bent or stretched (negative piezoresistive effect).
+- Bend hysteresis (H_max, 0°–90°, 700 cycles): **29.5 – 39.8 %**.
+- Material cost per sensor is about **96–99 % lower** than a commercial flex sensor (about 0.13–0.39 USD vs 10–15 USD).
+- Because of the high hysteresis, bending and releasing need separate calibration models.
 
-## Measurement systems
+## My Contribution
 
-| System | Hardware | Used for |
-|---|---|---|
-| Resistance/resistivity | STM32 Nucleo-G070RB, 2 ADC channels + DMA | Raw filament and printed samples |
-| Bend test | Arduino Nano + servo motor | 0°–90° bend/release, 700 cycles |
-| Stretch test | Arduino Mega + step motor (built by the advisor) | Axial stretching, 10 and 20 cycles |
+- Designed the **STM32 differential voltage divider** measurement system (ADC + DMA + UART).
+- Designed the **Arduino Nano + servo bend test system** and ran 700-cycle hysteresis tests.
+- Compared raw filament, printed samples, samples printed on fabric and a commercial sensor.
+- Analyzed stretching test data (conductivity and gauge factor).
+- The stretching test rig was designed by my advisor. I analyzed its data.
 
-**Differential voltage divider.** A 4-wire (Kelvin) measurement was unstable on soft, porous TPU because of the solder contacts. Instead, ADC1 reads the voltage at the start of the TPU and ADC0 reads it at the end, with a reference resistor in series to GND:
+**AI assistance:** All MATLAB code in this project was written with the help of Claude Sonnet 4.6 (Anthropic).
+
+## Measurement System
+
+The 4-wire (Kelvin) method was not stable on soft, porous 3D-printed TPU, so a **differential voltage divider** was used. ADC1 reads the voltage at the start of the TPU, ADC0 reads it at the end, and a reference resistor is in series:
 
 `R_TPU = R_ref · (V1 − V2) / V2`
 
-![Circuit](images/differential_voltage_divider_circuit.png)
+![Differential voltage divider circuit](images/differential_voltage_divider_circuit.png)
 
-- Firmware: C, STM32CubeIDE, HAL, ADC with DMA (circular mode)
-- Noise reduction: 1000-sample block averaging
-- Data: UART (115200 baud) to a live MATLAB plot of R and rho
+- STM32 Nucleo-G070RB, C (HAL), 12-bit ADC with DMA, 1000-sample block averaging
+- UART (115200 baud) to a live MATLAB plot of resistance and resistivity
 
-Flowcharts: [STM32](images/stm32_code_flowchart.png) · [MATLAB](images/matlab_code_flowchart.png)
+![Live measurement in MATLAB](images/instant_resistivity_measurement_from_matlab.png)
 
-## Main results
+## Bend Test System
 
-- **Resistivity:** raw filament ≈ 0.08 Ω·m. Printed samples: 0.26–1.18 Ω·m (depends on geometry, print direction and voids).
-- **Negative piezoresistive effect:** resistance goes **down** when the sensor is bent or stretched. The explanation is the Poisson effect plus reorganization of the carbon percolation network.
-- **Bend hysteresis (H_max, 0°–90°, 700 cycles):** 29.53–39.79 %. It grows as the sample gets thinner, and depends on angular velocity (22.65 % at 25 deg/s, about 31 % at 75–90 deg/s).
-- **Stretching:** mean gauge factor from −0.34 to −9.96 (stretching) and −0.46 to −14.77 (releasing). True conductivity is 2.0–7.8 S/m.
-- **Calibration:** bending and releasing need separate polynomial models, so one global model is not enough.
+A servo motor bends the sensor 0° → 90° → 0° for 700 cycles. An Arduino Nano reads a voltage divider and sends the data to MATLAB, which draws the hysteresis loop and calculates H_max. The angular velocity can be changed in the code.
 
-![Live measurement](images/instant_resistivity_measurement_from_matlab.png)
+![Bend test setup](images/bend_test_setup.png)
 
-## Cost
+## Results
 
-| Sensor | Unit price |
-|---|---|
-| Commercial (SpectraFlex / Flex Sensor) | about 10–15 USD |
-| Conductive TPU (1–3 g per sensor) | about 0.13–0.39 USD |
+- **Resistivity:** raw filament about 0.08 Ω·m. Printed samples 0.26–1.18 Ω·m (layers and voids change the value).
+- **Hysteresis:** thinner samples have more hysteresis (29.53 % for 1.0 mm, 33.36 % for 0.25 mm lines).
+- **Stretching:** gauge factor is negative for all 9 samples (from -0.34 to -9.96 while stretching).
+- **Why:** when the material is stretched, it gets narrower (Poisson effect), carbon particles come closer and new conductive paths form, so resistance goes down.
 
-Geometry is customizable and the TPU can be printed directly on fabric. Hysteresis compensation may add development cost.
+![Commercial vs TPU sensor](images/commercial_vs_tpu.png)
+![Hysteresis, Line 0.5 mm](images/hysteresis_line_0p5mm.png)
+![Stretching hysteresis](images/stretch_hysteresis_avg.png)
 
-## Limitations
+## Limitations and Future Work
 
-- Hysteresis is high (about 30–40 %), so compensation is needed for accurate angle estimation.
-- Printed samples are anisotropic and have voids, so resistivity changes with geometry.
-- Ambient temperature and humidity were not controlled.
+- Hysteresis is high (about 30–40 %), so compensation is needed for accurate angle measurement.
+- Next step: build the inverse model (resistance → angle) with separate models for bending and releasing.
 
-## Future work
+## Repository
 
-Build the **inverse model** (resistance → angle) with separate models for bending and releasing.
+- `Core/`: STM32CubeIDE firmware
+- `arduino/bend_test/`: Arduino Nano bend test code
+- `matlab/`: live dashboard, hysteresis analysis and stretching analysis scripts
 
-## Credits
+## Reference
 
-- The stretching test system was designed by the advisor, Assoc. Prof. Dr. Ahmet Özkurt. Its data was analyzed in this project.
-- Related work: A. Özkurt et al., "Geometrically Optimized FDM-Printed Conductive TPU Bend Sensors for Hand Rehabilitation," *Sensors*, 26(8), 2309, 2026. https://doi.org/10.3390/s26082309
-- The MATLAB scripts were written with the help of an AI tool (Claude Sonnet 4.6). *(Check this against the file name issue above.)*
-
-## Author
-
-Zehra Miray Gülseren
+A. Özkurt et al., "Geometrically Optimized FDM-Printed Conductive TPU Bend Sensors for Hand Rehabilitation," *Sensors*, 26(8), 2309, 2026. https://doi.org/10.3390/s26082309
